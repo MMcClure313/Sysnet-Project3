@@ -671,6 +671,10 @@ int main(int argc, char **argv)
      * Create NUM_CATS cat threads
      */
 	 
+   vector<Cat*> allCats;
+   for(int i=0; i < NUM_CATS; i++){
+    allCats.push_back(new Cat(i));
+   }
 
 	/*
 	 * Run NUM_LIZARDS and NUM_CATS threads
