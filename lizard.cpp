@@ -170,7 +170,10 @@ int Cat::getId()
   */
  void Cat::wait()
  {
-	 // wait for the thread to terminate
+  // wait for the thread to terminate
+	if (_catThread != NULL) {
+        _catThread->join(); //MA MC
+    } 
  }
  
  
