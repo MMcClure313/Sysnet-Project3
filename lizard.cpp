@@ -156,11 +156,12 @@ int Cat::getId()
  * Launches a cat thread.
  * 
  * Status: Incomplete - Make changes to this code.
+ * 
  */
  void Cat::run() 
  {
 	 // launch the thread to simulate the cat's behavior	 
-	 
+	 _catThread = new thread (catThread, this);
  }
  
  /**
@@ -684,6 +685,9 @@ int main(int argc, char **argv)
 	 */
     for (int i=0; i < NUM_LIZARDS; i++) {
         allLizards[i]->run();
+    }
+    for (int i = 0; i < NUM_CATS; i++){ 
+        allCats[i]->run();
     }
 
 	/*
