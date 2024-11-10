@@ -161,7 +161,7 @@ int Cat::getId()
  void Cat::run() 
  {
 	 // launch the thread to simulate the cat's behavior	 
-	 _catThread = new thread (catThread, this);
+	 _catThread = new thread (catThread, this); //MA MC
  }
  
  /**
@@ -217,6 +217,8 @@ void Cat::sleepNow()
   * @return - N/A
   *
   * Status: Incomplete - Make changes as you see are necessary.
+  * 
+  * Why is this incomplete??
   */
 void Cat::catThread (Cat *aCat)
 {
@@ -230,7 +232,6 @@ void Cat::catThread (Cat *aCat)
 	while(running)
     {
 		aCat->sleepNow();
-
 
 
 		/*
@@ -278,7 +279,7 @@ class Lizard {
  */
 Lizard::Lizard (int id)
 {
-	_id = id;
+	_id = id; 
 }
 
 /**
@@ -365,6 +366,7 @@ void Lizard::sago2MonkeyGrassIsSafe()
 		cout << flush;
     }
 
+
 	
 
 
@@ -435,6 +437,7 @@ void Lizard::madeIt2MonkeyGrass()
 		cout << "[" << _id << "] made the  sago -> monkey grass  crossing" << endl;
 		cout << flush;
     }
+
 
 
 
@@ -591,22 +594,15 @@ void Lizard::lizardThread(Lizard *aLizard)
        * are already completed - see the comments.
        */
 
+      aLizard->sleepNow();
 
+      aLizard->sago2MonkeyGrassIsSafe();
+      aLizard->crossSago2MonkeyGrass();
 
+      aLizard->eat();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+      aLizard->monkeyGrass2SagoIsSafe();
+      aLizard->crossMonkeyGrass2Sago();
 
     }
 
@@ -629,6 +625,7 @@ int main(int argc, char **argv)
 	 * Declare local variables
      */
 
+    sem_t crossingSemaphore; // Semaphore for managing crossing lizards
 
 
 
@@ -667,7 +664,7 @@ int main(int argc, char **argv)
      */
     vector<Lizard*> allLizards;
     for (int i=0; i < NUM_LIZARDS; i++) {
-	    allLizards.push_back(new Lizard(i));
+	    allLizards.push_back(new Lizard(i)); //MA MC
     }    
     
 
@@ -683,8 +680,8 @@ int main(int argc, char **argv)
 	/*
 	 * Run NUM_LIZARDS and NUM_CATS threads
 	 */
-    for (int i=0; i < NUM_LIZARDS; i++) {
-        allLizards[i]->run();
+    for (int i=0; i < NUM_LIZARDS; i++) { //MA MC
+        allLizards[i]->run(); 
     }
     for (int i = 0; i < NUM_CATS; i++){ 
         allCats[i]->run();
@@ -706,9 +703,12 @@ int main(int argc, char **argv)
      * Wait until all threads terminate
      */
 
-
-
-
+    for (int i=0; i < NUM_LIZARDS; i++) { //MA MC
+        allLizards[i]->wait(); 
+    }
+    for (int i = 0; i < NUM_CATS; i++){ 
+        allCats[i]->wait();
+    }                                     //MA MC
 
 
 	/*
@@ -721,8 +721,15 @@ int main(int argc, char **argv)
 	 * Delete all cat and lizard objects
 	 */
  
+    for (int i=0; i < NUM_LIZARDS; i++) { //MA MC start
+        delete allLizards[i]; 
+    }
+    for (int i = 0; i < NUM_CATS; i++){ 
+        delete allCats[i];
+    }
 
-
+    allLizards.clear();
+    allCats.clear(); //MA MC end
 
 	/*
      * Exit happily
