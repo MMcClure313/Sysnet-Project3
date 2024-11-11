@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <semaphore.h>
 
 #include <iostream>
 #include <thread>
@@ -95,6 +96,7 @@ using namespace std;
  * Declare global variables here
  */
 
+sem_t crossingLimit;
 
 /**************************************************/
 /* Please leave these variables alone.  They are  */
@@ -366,7 +368,7 @@ void Lizard::sago2MonkeyGrassIsSafe()
 		cout << flush;
     }
 
-
+	sem_wait(&crossingLimit);
 	
 
 
@@ -438,8 +440,7 @@ void Lizard::madeIt2MonkeyGrass()
 		cout << flush;
     }
 
-
-
+sem_post(&crossingLimit); //Release Semaphore after decrementing numcrossing NEED TO IMPLEMENT
 
 
 
@@ -485,6 +486,8 @@ void Lizard::eat()
  */
 void Lizard::monkeyGrass2SagoIsSafe()
 {
+	sem_wait(&crossingLimit); //wait for an appropriate time to cross
+
 	if (debug)
     {
 		cout << "[" << _id << "] checking  monkey grass -> sago" << endl;
@@ -492,7 +495,7 @@ void Lizard::monkeyGrass2SagoIsSafe()
     }
 
 
-
+  
 
 
 	if (debug)
@@ -563,6 +566,8 @@ void Lizard::madeIt2Sago()
 		cout << "[" << _id << "] made the  monkey grass -> sago  crossing" << endl;
 		cout << flush;
     }
+
+	sem_post(&crossingLimit); //Release semaphore after decrementing numCrossing NEED TO DO
 }
 
 /**
@@ -625,7 +630,7 @@ int main(int argc, char **argv)
 	 * Declare local variables
      */
 
-    sem_t crossingSemaphore; // Semaphore for managing crossing lizards
+    // sem_t crossingSemaphore; // Semaphore for managing crossing lizards
 
 
 
@@ -656,7 +661,7 @@ int main(int argc, char **argv)
      * Initialize locks and/or semaphores
      */
 
-
+	sem_init(&crossingLimit, 0, MAX_LIZARD_CROSSING);
 
 
 	/*
@@ -696,7 +701,13 @@ int main(int argc, char **argv)
 	/*
      * That's it - the end of the world
      */
+	
 	running = 0;
+	
+	for(int i = 0; i < NUM_LIZARDS; i++)
+	{
+		sem_post(&crossingLimit);
+	}
 
 
     /*
@@ -715,7 +726,7 @@ int main(int argc, char **argv)
      * Delete the locks and semaphores
      */
 	 
-	 
+	sem_destroy(&crossingLimit); //goodbye semaphores 
 	 
 	/*
 	 * Delete all cat and lizard objects
