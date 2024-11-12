@@ -96,7 +96,7 @@ using namespace std;
  * Declare global variables here
  */
 
-sem_t crossingLimit;
+sem_t crossingLimit; //HU ME
 
 /**************************************************/
 /* Please leave these variables alone.  They are  */
@@ -440,7 +440,7 @@ void Lizard::madeIt2MonkeyGrass()
 		cout << flush;
     }
 
-sem_post(&crossingLimit); //Release Semaphore after decrementing numcrossing NEED TO IMPLEMENT
+  sem_post(&crossingLimit); //Release Semaphore after decrementing numcrossing NEED TO IMPLEMENT
 
 
 
@@ -486,7 +486,6 @@ void Lizard::eat()
  */
 void Lizard::monkeyGrass2SagoIsSafe()
 {
-	sem_wait(&crossingLimit); //wait for an appropriate time to cross
 
 	if (debug)
     {
@@ -494,8 +493,8 @@ void Lizard::monkeyGrass2SagoIsSafe()
 		cout << flush;
     }
 
-
-  
+    //wait for an appropriate time to cross
+  	sem_wait(&crossingLimit); //HU ME 
 
 
 	if (debug)
@@ -598,16 +597,19 @@ void Lizard::lizardThread(Lizard *aLizard)
        * some functions by filling in the code.  Some  
        * are already completed - see the comments.
        */
-
+      
+      //Logic loop implemented by MA MC
       aLizard->sleepNow();
 
       aLizard->sago2MonkeyGrassIsSafe();
       aLizard->crossSago2MonkeyGrass();
+      aLizard->madeIt2MonkeyGrass();
 
       aLizard->eat();
 
       aLizard->monkeyGrass2SagoIsSafe();
       aLizard->crossMonkeyGrass2Sago();
+      aLizard->madeIt2Sago();
 
     }
 
@@ -661,7 +663,7 @@ int main(int argc, char **argv)
      * Initialize locks and/or semaphores
      */
 
-	sem_init(&crossingLimit, 0, MAX_LIZARD_CROSSING);
+	sem_init(&crossingLimit, 0, MAX_LIZARD_CROSSING); //HU ME
 
 
 	/*
@@ -703,30 +705,28 @@ int main(int argc, char **argv)
      */
 	
 	running = 0;
-	
-	for(int i = 0; i < NUM_LIZARDS; i++)
-	{
-		sem_post(&crossingLimit);
-	}
 
 
     /*
      * Wait until all threads terminate
      */
 
-    for (int i=0; i < NUM_LIZARDS; i++) { //MA MC
-        allLizards[i]->wait(); 
-    }
-    for (int i = 0; i < NUM_CATS; i++){ 
-        allCats[i]->wait();
+    for (int i = 0; i < NUM_CATS; i++){ //MA MC
+        allCats[i]->wait();              //MA MC
     }                                     //MA MC
+
+
+    for (int i=0; i < NUM_LIZARDS; i++) { //MA MC
+        sem_post(&crossingLimit); //HU ME
+        allLizards[i]->wait(); //MA MC
+    }
 
 
 	/*
      * Delete the locks and semaphores
      */
 	 
-	sem_destroy(&crossingLimit); //goodbye semaphores 
+	sem_destroy(&crossingLimit); //goodbye semaphores HU ME
 	 
 	/*
 	 * Delete all cat and lizard objects
