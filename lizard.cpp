@@ -97,6 +97,7 @@ using namespace std;
  */
 
 sem_t crossingLimit; //HU ME
+mutex counterMutex; //MA MC
 
 /**************************************************/
 /* Please leave these variables alone.  They are  */
@@ -239,11 +240,14 @@ void Cat::catThread (Cat *aCat)
 		/*
 	     * Check for too many lizards crossing
 	     */
+    std::unique_lock<mutex> lock(counterMutex); // Lock around the count check
+      //cout << "Cat sees" << (numCrossingMonkeyGrass2Sago + numCrossingSago2MonkeyGrass) << "lizards";
 		if (numCrossingSago2MonkeyGrass + numCrossingMonkeyGrass2Sago > MAX_LIZARD_CROSSING)
 		{
-		  cout << "\tThe cats are happy - they have toys.\n";
+		  cout << "\tThe cats are happy - they have toys. Seeing" << numCrossingMonkeyGrass2Sago + numCrossingSago2MonkeyGrass << "\n";
 		  exit( -1 );
 		}
+    lock.unlock();
     }
 }
 
@@ -398,7 +402,11 @@ void Lizard::crossSago2MonkeyGrass()
 	/*
 	 * One more crossing this way
 	 */
+  std::unique_lock<mutex> lock(counterMutex);
+
 	numCrossingSago2MonkeyGrass++;
+
+  lock.unlock();
 
 	/*
      * Check for lizards cross both ways
@@ -420,7 +428,10 @@ void Lizard::crossSago2MonkeyGrass()
     /*
      * That one seems to have made it
      */
+
+    lock.lock();
     numCrossingSago2MonkeyGrass--;
+    lock.unlock();
 }
 
 
@@ -523,9 +534,11 @@ void Lizard::crossMonkeyGrass2Sago()
     /*
      * One more crossing this way
      */
-	numCrossingMonkeyGrass2Sago++;
+    std::unique_lock<mutex> lock(counterMutex);
 
-  
+	    numCrossingMonkeyGrass2Sago++;
+
+    lock.unlock();
     /*
      * Check for lizards cross both ways
      */
@@ -545,7 +558,9 @@ void Lizard::crossMonkeyGrass2Sago()
 	/*
      * That one seems to have made it
      */
+  lock.lock();
 	numCrossingMonkeyGrass2Sago--;
+  lock.unlock();
 }
 
 
@@ -631,9 +646,6 @@ int main(int argc, char **argv)
 	/*
 	 * Declare local variables
      */
-
-    // sem_t crossingSemaphore; // Semaphore for managing crossing lizards
-
 
 
 	/*
